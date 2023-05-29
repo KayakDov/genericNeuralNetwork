@@ -1,7 +1,7 @@
 
 package test;
 
-import Data.Datum;
+import data.Datum;
 import Data.DiskSampleDataSet;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +17,7 @@ import org.jblas.DoubleMatrix;
  */
 public class Test {
 
-    public static List<Datum> data(){
+    public static DiskSampleDataSet data(){
         int numPointsInSet = 1000;
         return new DiskSampleDataSet(
                 new DiskSampleDataSet.Disk[]{

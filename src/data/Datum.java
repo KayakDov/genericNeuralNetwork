@@ -1,5 +1,5 @@
 
-package Data;
+package data;
 
 import org.jblas.DoubleMatrix;
 
@@ -8,11 +8,12 @@ import org.jblas.DoubleMatrix;
  * @author Dov Neimand
  */
 public class Datum extends DoubleMatrix{
-    public final int type;
+    public final int type, numTypes;
 
-    public Datum(double[] x, int type) {
+    public Datum(double[] x, int type, int numTypes) {
         super(x);
         this.type = type;
+        this.numTypes = numTypes;
     }
     
     /**
@@ -20,7 +21,7 @@ public class Datum extends DoubleMatrix{
      * @return The optimal output a neural network would produce for this datum.
      */
     public final DoubleMatrix type(){
-        double[] type = new double[data.length];
+        double[] type = new double[numTypes];
         type[this.type] = 1;
         return new DoubleMatrix(type);
     }

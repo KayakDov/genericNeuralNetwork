@@ -1,9 +1,12 @@
 package Data;
 
+import data.ClassifiedData;
+import data.Datum;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.jblas.DoubleMatrix;
 
 /**
@@ -11,7 +14,12 @@ import org.jblas.DoubleMatrix;
  *
  * @author Dov Neimand
  */
-public class DiskSampleDataSet extends ArrayList<Datum> {
+public class DiskSampleDataSet extends ArrayList<Datum> implements ClassifiedData{
+
+    @Override
+    public Stream<Datum> stream() {
+        return super.stream();
+    }
 
     /**
      * The basic attributes of a set of points randomly distributed across a
@@ -46,18 +54,25 @@ public class DiskSampleDataSet extends ArrayList<Datum> {
             return IntStream.range(0, numPoints).mapToObj(i -> {
                 DoubleMatrix vec = DoubleMatrix.randn(center.length);
                 vec = vec.div(vec.norm2()).mul(radius * Math.random()).add(center);
-                return new Datum(vec.data, id);
+                return new Datum(vec.data, id, numDisks);
             }).toList();
         }
+        
+        private int numDisks;
 
     }
 
+    
+    
+    
+    
     /**
      * Creates a bunch of disk points, each disk having its own id.
      * @param disks The disks in which the points are to be created.
      */
     public DiskSampleDataSet(Disk[] disks) {
         super(Arrays.stream(disks).mapToInt(disk -> disk.numPoints).sum());
+        Arrays.stream(disks).forEach(disk -> disk.numDisks = disks.length);
         IntStream.range(0, disks.length).forEach(i -> addAll(disks[i].vectors(i)));
     }
 

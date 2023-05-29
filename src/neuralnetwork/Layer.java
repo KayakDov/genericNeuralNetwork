@@ -1,6 +1,6 @@
 package neuralnetwork;
 
-import Data.Datum;
+import data.Datum;
 import java.util.function.Function;
 import org.jblas.DoubleMatrix;
 
@@ -13,7 +13,6 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
     private DoubleMatrix weights, bias;
     public final ActivationFunction actFunc;
     public final Layer subLayer;
-    public final int layerIndex;
     public final LayerArchitecture arch;
 
     /**
@@ -39,7 +38,6 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
         this.bias = bias;
         this.actFunc = af;
         this.subLayer = subLayer;
-        layerIndex = subLayer == null ? 0 : subLayer.layerIndex + 1;
         arch = layerArch;
     }
 
@@ -53,56 +51,6 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
     public double subLayer(DoubleMatrix x, int row) {
         if (hasSubLayer()) return subLayer.applyNode(x, row);
         return x.get(row);
-    }
-
-    /**
-     * Memoization apply.  If apply has been solved before on this layer or a 
-     * sublayer, then the result is produced faster.  Beware that the memo was
-     * created for vec, otherwise an incorrect result will be returned.
-     * @param vec The vector this Layer is applied to.
-     * @param memo A history of previous applications of this layer or sublayers
-     * to this same vector.
-     * @return The apply of applying this layer to vec.
-     */
-    public DoubleMatrix apply(DoubleMatrix vec, DoubleMatrix[] memo){
-        if(memo[layerIndex] == null) memo[layerIndex] = 
-                actFunc.apply(affineTransf(operand(vec, memo)));
-        
-        return memo[layerIndex];
-    }
-    
-    /**
-     * The partial derivative of the given layer with respect to the weight or
-     * bias at the given index.
-     *
-     * @param currentLInd The index of the layer for which the derivative is to
-     * be taken. TODO:This should be solved as a gradient instead of for one
-     * variable at a time to avoid lots or redundant computations.
-     * @param varInd The index of the variable for which the partial derivative
-     * is taken.
-     * @return The partial derivative of the given layer with respect to the
-     * weight or bias at the given index.
-     */
-    public DoubleMatrix dLayerdwi(
-            Indices varInd, 
-            Datum x, 
-            DoubleMatrix[] dActFMemo, 
-            DoubleMatrix[] applyMemo) {
-
-        int row = varInd.isWeight() ? varInd.col : varInd.row;
-
-        double dAffTransfdw = varInd.isWeight() ? operand(x, applyMemo).get(row) : 1;
-        
-        if (dActFMemo[layerIndex] == null)
-            dActFMemo[layerIndex] = actFunc.ddt(affineTransf(operand(x, applyMemo)));
-
-        if (varInd.layer == layerIndex)
-            return valAt(varInd.row, numNodes(),
-                    dActFMemo[layerIndex].get(row) * dAffTransfdw
-            );
-        else return dActFMemo[layerIndex]
-                    .mul(getWeights().mmul(subLayer.dLayerdwi(varInd, x, dActFMemo, applyMemo)));
-        
     }
     
     /**
@@ -232,25 +180,6 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
         return x;
     }
     
-    /**
-     * The operand of this layer. If the layer has a sublayer, then this is
-     * sublayer applied to x, otheriwse it is just x.
-     *
-     * @param x The datum the neural network is applied to.
-     * @memo The memoization of this method.  Be ware, every x needs its own 
-     * memo.
-     * @return The operand of this layer.
-     */
-    public DoubleMatrix operand(DoubleMatrix x, DoubleMatrix[] memo) {
-        if (hasSubLayer()){
-            if(memo[layerIndex - 1] == null)
-                memo[layerIndex - 1] = subLayer.apply(x, memo);
-            
-            return memo[layerIndex - 1];
-        }
-        return x;
-    }
-
     /**
      * Applies a single node in this layer to the given datum.
      *

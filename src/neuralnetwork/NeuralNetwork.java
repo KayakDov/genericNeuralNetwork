@@ -1,6 +1,6 @@
 package neuralnetwork;
 
-import Data.Datum;
+import data.Datum;
 import java.util.Arrays;
 import java.util.function.Function;
 import org.jblas.DoubleMatrix;
@@ -59,22 +59,6 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix> {
     }
 
     /**
-     * The partial derivative of the neural network with respect to the
-     * weight/bias at the given index.
-     *
-     * @param ind The index of the weight or bias the partial derivative is
-     * relative to.
-     * @param x The datum which is treated as a set of constants for the purpose
-     * of computing the partial derivatives of the weights.
-     * @return The partial derivative of the weight or bias at the index i. This
-     * is a vector and the partial derivative is taken over each element of the
-     * vector: d/dw(a(w), b(w), c(w)) = (da/dw, db/dw, dc/dw).
-     */
-    public DoubleMatrix dNNwi(Indices ind, Datum x, DoubleMatrix[] derivMemo, DoubleMatrix[] applyMemo) {
-        return topLayer.dLayerdwi(ind, x, derivMemo, applyMemo);
-    }
-
-    /**
      * The number of output values of the neural network.
      *
      * @return The number of output values of the neural network.
@@ -110,24 +94,6 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix> {
     }
 
     /**
-     * The gradient with regard to the weights and biases.
-     *
-     * @param vec The vector relative to which the weights are being taken.
-     * @return The gradient with regard to the weights and biases.
-     */
-    public DoubleMatrix grad(Datum vec) {
-        DoubleMatrix[] applyMemo = new DoubleMatrix[architecture.numLayers()],
-                diffMemo = new DoubleMatrix[architecture.numLayers()];
-
-        DoubleMatrix grad = new DoubleMatrix(architecture.outputDim(), architecture.numVariables());
-
-        for (int i = 0; i < architecture.numVariables(); i++)
-            grad.putColumn(i, dNNwi(architecture.getIndex(i), vec, diffMemo, applyMemo));//TODO:All this column putting is probably slow.
-
-        return grad;
-    }
-
-    /**
      * The gradient of the neural network relative to the weights and biases at
      * x.
      *
@@ -137,7 +103,6 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix> {
     public DoubleMatrix gradCost(Datum x) {
         Layer.BackTrackResult btr = topLayer.grad(x);
         return (btr.apply.subi(x.type())).transpose().mmul(btr.grad);
-//        return (apply(x).subi(x.type())).transpose().mmul(grad(x));        
     }
 
     /**
