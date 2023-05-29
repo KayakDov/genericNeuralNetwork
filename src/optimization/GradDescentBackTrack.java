@@ -29,21 +29,21 @@ public class GradDescentBackTrack extends RecursiveTask<double[]>{
      * factor of gamma until the value of f at that point is less than c * the
      * slope at the given point.
      * @param from The point we're jumping from.
-     * @param grad The gradient of the from point.
+     * @param atX The gradient of the from point.
      * @return a new point along the direction of grad that has improved
      * f more than the slope of grad times c.
      */
-    private DoubleMatrix jump(DoubleMatrix from, DoubleMatrix grad) {
+    private DoubleMatrix jump(DoubleMatrix from, FuncAt atX) {
         double t = gamma;
-        final double fAtX = f.at(from), reducedSlope = c * grad.dot(grad);
+        final double reducedSlope = c * atX.grad.dot(atX.grad);
 
-        while (f.at(from.sub(grad.mul(t))) > fAtX - t*reducedSlope)
+        while (f.at(from.sub(atX.grad.mul(t))) > atX.val - t*reducedSlope)
             t *= gamma;
         
-        DoubleMatrix to = from.add(grad.mul(-t));
+        DoubleMatrix to = from.add(atX.grad.mul(-t));
         
         if(from.sub(to).norm2() <= 1e-14) //TODO:remove
-            throw new RuntimeException("This jump did not move at all.  The gradient is: " + grad);
+            throw new RuntimeException("This jump did not move at all.  The gradient is: " + atX);
         
         return to; 
     }
@@ -56,12 +56,12 @@ public class GradDescentBackTrack extends RecursiveTask<double[]>{
     public double[] compute() {
         
         DoubleMatrix x = DoubleMatrix.rand(f.domainDim());
-        DoubleMatrix grad = f.grad(x);
+        FuncAt atX = f.funcAt(x.data);
 
-        while (grad.dot(grad) > tolerance) {
+        while (atX.grad.dot(atX.grad) > tolerance) {
             
-            x = jump(x, grad);
-            grad = f.grad(x);
+            x = jump(x, atX);
+            atX = f.funcAt(x.data);
         }
 
         return x.data;

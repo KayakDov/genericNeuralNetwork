@@ -3,6 +3,7 @@ package neuralnetwork;
 import data.Datum;
 import java.util.Arrays;
 import java.util.function.Function;
+import optimization.FuncAt;
 import org.jblas.DoubleMatrix;
 
 /**
@@ -100,9 +101,11 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix> {
      * @param x The datum for which the gradient is calculated.
      * @return The gradient of the cost.
      */
-    public DoubleMatrix gradCost(Datum x) {
+    public FuncAt gradCost(Datum x) {
         Layer.BackTrackResult btr = topLayer.grad(x);
-        return (btr.apply.subi(x.type())).transpose().mmul(btr.grad);
+        btr.apply.data[x.type] -= 1;
+        DoubleMatrix grad = btr.apply.transpose().mmul(btr.grad);
+        return new FuncAt(grad, btr.apply.dot(btr.apply));
     }
 
     /**
@@ -118,7 +121,7 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix> {
      */
     public double cost(Datum x) {
         DoubleMatrix forecast = apply(x);
-        forecast = forecast.sub(x.type());
+        forecast.data[x.type] -= 1;
         return forecast.dot(forecast);
     }
 

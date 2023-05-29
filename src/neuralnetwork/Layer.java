@@ -88,8 +88,8 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
         for(;w < btr.grad.columns; w++) 
             grad.putColumn(w, weights.mmul(btr.grad.getColumn(w)));
         
-        for(int col = 0; col < weights.rows; col++) //indecies ordered (0,0), (1,0), ..., (n, 0), (1,0), (1,1), ..., (1,n), ...
-            for(int row = 0; row < weights.columns; row++, w++)
+        for(int col = 0; col < weights.columns; col++) //indecies ordered (0,0), (1,0), ..., (n, 0), (1,0), (1,1), ..., (1,n), ...
+            for(int row = 0; row < weights.rows; row++, w++)
                 grad.putColumn(w, valAt(row, weights.rows, btr.apply.get(col)));
         
         for(int row = 0; row < weights.rows; row++, w++){

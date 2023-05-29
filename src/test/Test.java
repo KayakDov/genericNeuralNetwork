@@ -22,7 +22,8 @@ public class Test {
         return new DiskSampleDataSet(
                 new DiskSampleDataSet.Disk[]{
                     new DiskSampleDataSet.Disk(numPointsInSet, new DoubleMatrix(new double[]{0,0}), 1), 
-                    new DiskSampleDataSet.Disk(numPointsInSet, new DoubleMatrix(new double[]{0, 2}), 1)
+                    new DiskSampleDataSet.Disk(numPointsInSet, new DoubleMatrix(new double[]{0, 2}), 1),
+                    new DiskSampleDataSet.Disk(numPointsInSet, new DoubleMatrix(new double[]{2, 0}), 1)
                 });
     }
     
@@ -31,10 +32,12 @@ public class Test {
      */
     public static void main(String[] args) {
         
+        NetworkArchitecture nw = new NetworkArchitecture(new Sigmoid(), 2, 3, 3);
+                        
         NeuralNetworkBuilder nnb = new NeuralNetworkBuilder(
                 data(), 
-                new NetworkArchitecture(new Sigmoid(), 2, 2),
-                1e-5
+                nw,
+                1e-6
         );
         
         NeuralNetwork nn = nnb.compute();
@@ -42,6 +45,7 @@ public class Test {
         System.out.println(nn.apply(0.0, 0));
         System.out.println(nn.apply(0, 1));
         System.out.println(nn.apply(0, 2));
+        System.out.println(nn.apply(2, 0));
 
         
     }

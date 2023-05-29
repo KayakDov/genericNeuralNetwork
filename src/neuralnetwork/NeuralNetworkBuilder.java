@@ -7,6 +7,7 @@ import optimization.DiffReal;
 import optimization.GradDescentBackTrack;
 import org.jblas.DoubleMatrix;
 import data.ClassifiedData;
+import optimization.FuncAt;
 
 /**
  * This class optimizes a neural network for given data.
@@ -28,14 +29,19 @@ public class NeuralNetworkBuilder extends RecursiveTask<NeuralNetwork> {
      */
     public NeuralNetworkBuilder(ClassifiedData data, NetworkArchitecture architecture, double threshold) {
         if (data.numTypes() != architecture.outputDim())
-            throw new RuntimeException("The number of output dimensions, "
+            throw new IllegalArgumentException("The number of output dimensions, "
                     + architecture.outputDim() + " must match the number of data "
                     + "types, " + data.numTypes());
+        
+        if(data.dim() != architecture.inputDim())
+            throw new IllegalArgumentException("The data passed has dimesnion " 
+                    + data.dim() + " but the architecure calls for data with "
+                            + "dimesnion " + architecture.inputDim());
+        
         this.trainingData = data;
         this.layerDims = architecture;
         this.threshold = threshold;
-//        System.out.println("neuralnetwork.NeuralNetworkBuilder.<init>()");
-//        System.out.println(data.toString().replace("[", "(").replace("]", ")").replace(";", ",").replace("), (", ")\n("));
+
     }
 
 
@@ -56,17 +62,18 @@ public class NeuralNetworkBuilder extends RecursiveTask<NeuralNetwork> {
      * @return The gradient of the neural network as a function of its weights
      * and biases.
      */
-    private DoubleMatrix gradCost(NeuralNetwork nn) {
+    private FuncAt gradCost(NeuralNetwork nn) {
         
-        return trainingData.parallel().map(x -> nn.gradCost(x))
+        return trainingData.parallel()
+                .map(x -> nn.gradCost(x))
                 .collect(
-                () -> new DoubleMatrix(1, nn.numWeightsAndBiases()), 
-                (a,b) -> a.addi(b), 
-                (a,b) -> a.addi(b));
-        
-//        double[] dCostdw = new double[nn.numWeightsAndBiases()];
-//        Arrays.parallelSetAll(dCostdw, i -> trainingData.stream().mapToDouble(x -> dCostdw(nn, x, i)).sum());
-//        return new DoubleMatrix(dCostdw);
+                    () -> new FuncAt(
+                            new DoubleMatrix(1, nn.numWeightsAndBiases()), 
+                            0
+                    ), 
+                    (a,b) -> a.addi(b), 
+                    (a,b) -> a.addi(b)
+                );
     }
 
     @Override
@@ -75,7 +82,7 @@ public class NeuralNetworkBuilder extends RecursiveTask<NeuralNetwork> {
         DiffReal nnBuilderDiffReal = new DiffReal() {
             @Override
             public DoubleMatrix grad(double[] x) {
-                return gradCost(new NeuralNetwork(x, layerDims));
+                return funcAt(x).grad;
             }
 
             @Override
@@ -87,6 +94,13 @@ public class NeuralNetworkBuilder extends RecursiveTask<NeuralNetwork> {
             public double applyAsDouble(double[] value) {
                 return cost(new NeuralNetwork(value, layerDims));
             }
+
+            @Override
+            public FuncAt funcAt(double[] x) {
+                return gradCost(new NeuralNetwork(x, layerDims));
+            }
+            
+            
         };
 
         return new NeuralNetwork(

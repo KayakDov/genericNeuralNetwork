@@ -37,6 +37,15 @@ public interface DiffReal extends ToDoubleFunction<double[]>{
     }
     
     /**
+     * The gradient and value of the function at x.
+     * @param x The point the gradient and value are taken from.
+     * @return The gradient and value of the function at x.
+     */
+    public default FuncAt funcAt(double[] x){
+        return new FuncAt(grad(x), at(x));
+    }
+    
+    /**
      * This is the same as the applyAsDouble function.
      * @param x A point in the domain at the function.
      * @return The value at the function at x;

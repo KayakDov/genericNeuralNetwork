@@ -21,4 +21,12 @@ public interface ClassifiedData {
     public default int numTypes() {
         return stream().findAny().get().numTypes;
     }
+    
+    /**
+     * The dimension of the data space.
+     * @return The dimension of the data space.
+     */
+    public default int dim(){
+        return stream().findAny().get().length;
+    }
 }
