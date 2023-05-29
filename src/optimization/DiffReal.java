@@ -1,13 +1,13 @@
 package optimization;
 
 import java.util.function.ToDoubleFunction;
-import singleNode.RVec;
+import org.jblas.DoubleMatrix;
 
 /**
  *
  * @author Kayak
  */
-public interface DiffReal extends ToDoubleFunction<RVec>{
+public interface DiffReal extends ToDoubleFunction<double[]>{
     
     
     /**
@@ -15,7 +15,7 @@ public interface DiffReal extends ToDoubleFunction<RVec>{
      * @param x The point at which the gradient is calculated.
      * @return The gradient at the function at x.
      */
-    public abstract RVec grad(RVec x);
+    public abstract DoubleMatrix grad(double[] x);
     
     
     /**
@@ -23,8 +23,8 @@ public interface DiffReal extends ToDoubleFunction<RVec>{
      * @param x The point at which the gradient is calculated.
      * @return The gradient at the function at x.
      */
-    public default RVec grad(double ... x){
-        return grad(new RVec(x));
+    public default DoubleMatrix grad(DoubleMatrix x){
+        return grad(x.data);
     }
     
     /**
@@ -32,7 +32,7 @@ public interface DiffReal extends ToDoubleFunction<RVec>{
      * @param x A point in the domain at the function.
      * @return The value at the function at x;
      */
-    public default double at(RVec x){
+    public default double at(double... x){
         return applyAsDouble(x);
     }
     
@@ -41,8 +41,8 @@ public interface DiffReal extends ToDoubleFunction<RVec>{
      * @param x A point in the domain at the function.
      * @return The value at the function at x;
      */
-    public default double at(double ... x){
-        return at(new RVec(x));
+    public default double at(DoubleMatrix x){
+        return at(x.data);
     }
     
     public abstract int domainDim();
