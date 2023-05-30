@@ -1,7 +1,5 @@
 package neuralnetwork;
 
-import data.Datum;
-import java.util.List;
 import java.util.concurrent.RecursiveTask;
 import optimization.DiffReal;
 import optimization.GradDescentBackTrack;
@@ -59,12 +57,16 @@ public class NeuralNetworkBuilder extends RecursiveTask<NeuralNetwork> {
      * The change in the cost function as the weights and biases are changed.
      *
      * @param nn The current set of weights and biases.
+     * @param stochasticSize How many elements of data should be considered? 
+     * Pass -1 to consider all of them.
      * @return The gradient of the neural network as a function of its weights
      * and biases.
      */
-    private FuncAt gradCost(NeuralNetwork nn) {
+    private FuncAt gradCost(NeuralNetwork nn, int stochasticSize) {
         
-        return trainingData.parallel()
+        return (stochasticSize != -1? 
+                trainingData.stochasticParallel(stochasticSize):
+                trainingData.parallel())
                 .map(x -> nn.gradCost(x))
                 .collect(
                     () -> new FuncAt(

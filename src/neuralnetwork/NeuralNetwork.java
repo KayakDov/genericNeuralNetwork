@@ -104,7 +104,9 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix> {
     public FuncAt gradCost(Datum x) {
         Layer.BackTrackResult btr = topLayer.grad(x);
         btr.apply.data[x.type] -= 1;
-        DoubleMatrix grad = btr.apply.transpose().mmul(btr.grad);
+        btr.apply.rows = 1;
+        btr.apply.columns = btr.apply.length;
+        DoubleMatrix grad = btr.apply.mmul(btr.grad);
         return new FuncAt(grad, btr.apply.dot(btr.apply));
     }
 

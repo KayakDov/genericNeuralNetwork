@@ -8,10 +8,34 @@ import java.util.stream.Stream;
  */
 public interface ClassifiedData {
 
+    /**
+     * A stream of all the data.
+     * @return A stream of all the data.
+     */
     public abstract Stream<Datum> stream();
+    
+    /**
+     * A stream of randomly selected elements.
+     * @param size The number of elements in the stream.
+     * @return A stream of randomly selected elements.
+     */
+    public abstract Stream<Datum> stochasticStream(int size);
 
+    /**
+     * A parallel stream of data.
+     * @return A parallel stream of data.
+     */
     public default Stream<Datum> parallel() {
         return stream().parallel();
+    }
+    
+    /**
+     * A parallel stream of randomly selected elements.
+     * @param size The number of elements in the desired stream.
+     * @return A parallel stream of randomly selected data.
+     */
+    public default Stream<Datum> stochasticParallel(int size) {
+        return stochasticStream(size).parallel();
     }
 
     /**

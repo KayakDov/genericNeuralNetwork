@@ -1,5 +1,6 @@
 package neuralnetwork;
 
+import neuralnetwork.ActivationFunctions.ActivationFunction;
 import data.Datum;
 import java.util.function.Function;
 import org.jblas.DoubleMatrix;
@@ -95,12 +96,13 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
         for(int row = 0; row < weights.rows; row++, w++){
             grad.putColumn(w, valAt(row, weights.rows, 1));
         }
-        
-        DoubleMatrix affTrans = affineTransf(btr.apply);
+
+        ActivationFunction.AtVector actFuncAt = actFunc.ati(affineTransf(btr.apply));
         
         return new BackTrackResult(
-                grad.mulColumnVector(actFunc.ddt(affTrans)), 
-                actFunc.apply(affTrans));
+                grad.mulColumnVector(actFuncAt.ddt), 
+                actFuncAt.val
+        );        
     }
 
     /**

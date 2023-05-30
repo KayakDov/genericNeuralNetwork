@@ -8,7 +8,7 @@ import java.util.List;
 import neuralnetwork.NetworkArchitecture;
 import neuralnetwork.NeuralNetwork;
 import neuralnetwork.NeuralNetworkBuilder;
-import neuralnetwork.Sigmoid;
+import neuralnetwork.ActivationFunctions.Sigmoid;
 import org.jblas.DoubleMatrix;
 
 /**
@@ -30,14 +30,14 @@ public class Test {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) {//TODO: set up stochastic gradient descent.
         
-        NetworkArchitecture nw = new NetworkArchitecture(new Sigmoid(), 2, 3, 3);
+        NetworkArchitecture nw = new NetworkArchitecture(new Sigmoid(), 2, 2, 3);
                         
         NeuralNetworkBuilder nnb = new NeuralNetworkBuilder(
                 data(), 
                 nw,
-                1e-6
+                1e-5
         );
         
         NeuralNetwork nn = nnb.compute();

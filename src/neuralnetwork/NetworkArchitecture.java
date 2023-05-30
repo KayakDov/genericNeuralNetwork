@@ -2,6 +2,8 @@
 
 package neuralnetwork;
 
+import neuralnetwork.ActivationFunctions.Sigmoid;
+import neuralnetwork.ActivationFunctions.ActivationFunction;
 import java.util.Arrays;
 
 /**

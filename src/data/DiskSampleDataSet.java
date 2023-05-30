@@ -4,7 +4,9 @@ import data.ClassifiedData;
 import data.Datum;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.jblas.DoubleMatrix;
@@ -21,6 +23,14 @@ public class DiskSampleDataSet extends ArrayList<Datum> implements ClassifiedDat
         return super.stream();
     }
 
+    @Override
+    public Stream<Datum> stochasticStream(int size) {//TODO, deal with large sizes
+        Set<Datum> set = new HashSet<>(size);
+        while(set.size() < size) set.add((get((int)(Math.random()*size()))));
+        return set.stream();
+    }
+
+    
     /**
      * The basic attributes of a set of points randomly distributed across a
      * disk.
