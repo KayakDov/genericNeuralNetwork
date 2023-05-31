@@ -88,22 +88,43 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
     }
 
     /**
-     * multiplies the weights by the gradient of the sublayer 
+     * This method calculated the partial derivative of weights and biases 
+     * that are in the operand.
+     * Multiplies the weights by the gradient of the sublayer 
      * and copies the results into the gradient on this layer.
-     * @param grad The gradient so far caluclated for this layer.
+     * @param grad The gradient so far calculated for this layer.
      * @param btr The results from the sublayer.
-     * @return The column uup to which the gradient on this layer has been 
-     * filled.
      */
-    private int weightsTimesSublayerGrad(DoubleMatrix grad, BackTrackResult btr) {
-
+    private void wInOperand(DoubleMatrix grad, BackTrackResult btr) {
         if (hasSubLayer()) {
-            DoubleMatrix weightsInX = weights.mmul(btr.grad);
-
-            System.arraycopy(weightsInX.data, 0, grad.data, 0, weightsInX.length);
-
-            return weightsInX.columns;
-        } else return 0;
+            System.arraycopy(weights.mmul(btr.grad).data, 0, 
+                    grad.data, 0, weights.rows*btr.grad.columns);
+        }
+    }
+    
+    /**
+     * This is for calculates the the partial derivataive with respect to
+     * weights in this layer.
+     * @param btr The result of previous layers.
+     * @param grad The uncompleted gradient.
+     * @return The index of the last weight.
+     */
+    public void wIsWeight(DoubleMatrix grad, BackTrackResult btr){
+        for (int col = 0; col < weights.columns; col++) 
+            for (int row = 0; row < weights.rows; row++)
+                grad.put(row, btr.grad.columns + row, btr.apply.get(col));
+    }
+    
+    /**
+     * Computes the partial derivative with respect to the biases in this layer,
+     * and adds them to the gradient being built.
+     * @param grad The gradient being built.
+     * @param btr The result of the sublayer work.
+     */
+    private void wIsBias(DoubleMatrix grad, BackTrackResult btr){
+        
+        for (int row = 0; row < bias.rows; row++)
+            grad.put(row, arch.numWeights() + btr.grad.columns + row, 1);
     }
 
     /**
@@ -125,14 +146,11 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
         DoubleMatrix grad
                 = new DoubleMatrix(arch.rows, arch.startIndex + arch.length());
 
-        int w = weightsTimesSublayerGrad(grad, btr);
+        wInOperand(grad, btr);
 
-        for (int col = 0; col < weights.columns; col++) //indecies ordered (0,0), (1,0), ..., (n, 0), (1,0), (1,1), ..., (1,n), ...
-            for (int row = 0; row < weights.rows; row++, w++)
-                grad.put(row, w, btr.apply.get(col));
+        wIsWeight(grad, btr);
 
-        for (int row = 0; row < weights.rows; row++, w++)
-            grad.put(row, w, 1);
+        wIsBias(grad, btr);
 
         ActivationFunction.AtVector actFuncAt = actFunc.ati(affineTransf(btr.apply));
 
