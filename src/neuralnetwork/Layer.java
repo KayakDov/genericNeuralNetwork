@@ -53,11 +53,12 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
         if (hasSubLayer()) return subLayer.applyNode(x, row);
         return x.get(row);
     }
-    
+
     /**
-     * A container for the results of backtracking.  
+     * A container for the results of backtracking.
      */
-    public class BackTrackResult{
+    public class BackTrackResult {
+
         public final DoubleMatrix grad;
         public final DoubleMatrix apply;
 
@@ -66,43 +67,79 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
             this.apply = result;
         }
     }
-    
+
     /**
-     * The gradient of this layer as a function of the weights and biases 
+     * Writes the product of m and b directly into column toCol of toMatrix. The
+     * dimension of b must equal the column number of m must equal the row
+     * number of toMatrix.
+     *
+     * @param m The matrix to be multiplied.
+     * @param b A vector with dimension equal to m's column number and
+     * toMatrix's row number.
+     * @param toMatrix The matrix the result of mx is to be written into.
+     * @param toCol The column in toMatrix that the result is to be coppied
+     * into.
+     */
+    private static void mmulToCol(DoubleMatrix m, DoubleMatrix b, DoubleMatrix toMatrix, int toCol) {
+        for (int col = 0; col < m.columns; col++)
+            for (int row = 0; row < m.rows; row++)
+                toMatrix.data[toCol * m.rows + row] += b.data[col] * m.data[col
+                        * m.rows + row];
+    }
+
+    /**
+     * multiplies the weights by the gradient of the sublayer 
+     * and copies the results into the gradient on this layer.
+     * @param grad The gradient so far caluclated for this layer.
+     * @param btr The results from the sublayer.
+     * @return The column uup to which the gradient on this layer has been 
+     * filled.
+     */
+    private int weightsTimesSublayerGrad(DoubleMatrix grad, BackTrackResult btr) {
+
+        if (hasSubLayer()) {
+            DoubleMatrix weightsInX = weights.mmul(btr.grad);
+
+            System.arraycopy(weightsInX.data, 0, grad.data, 0, weightsInX.length);
+
+            return weightsInX.columns;
+        } else return 0;
+    }
+
+    /**
+     * The gradient of this layer as a function of the weights and biases
      * applied to x.
-     * @param x The point the neural network is being applied to.  For the 
+     *
+     * @param x The point the neural network is being applied to. For the
      * purposes of computing the gradient, this is considered a constant.
      * @return The gradient of this method and the result of applying the layer
-     * to x.  In the gradient vector, each row is the gradient over all the 
+     * to x. In the gradient vector, each row is the gradient over all the
      * weights and biases for one of the highest layer nodes.
      */
-    public BackTrackResult grad(Datum x){
-        
-        BackTrackResult btr = hasSubLayer()?
-                subLayer.grad(x):
-                new BackTrackResult(DoubleMatrix.EMPTY, x);
-        
-        DoubleMatrix grad = 
-                new DoubleMatrix(arch.rows, arch.startIndex + arch.length());
-        
-        int w = 0;
-        for(;w < btr.grad.columns; w++) 
-            grad.putColumn(w, weights.mmul(btr.grad.getColumn(w)));
-        
-        for(int col = 0; col < weights.columns; col++) //indecies ordered (0,0), (1,0), ..., (n, 0), (1,0), (1,1), ..., (1,n), ...
-            for(int row = 0; row < weights.rows; row++, w++)
+    public BackTrackResult grad(Datum x) {
+
+        BackTrackResult btr = hasSubLayer()
+                ? subLayer.grad(x)
+                : new BackTrackResult(DoubleMatrix.EMPTY, x);
+
+        DoubleMatrix grad
+                = new DoubleMatrix(arch.rows, arch.startIndex + arch.length());
+
+        int w = weightsTimesSublayerGrad(grad, btr);
+
+        for (int col = 0; col < weights.columns; col++) //indecies ordered (0,0), (1,0), ..., (n, 0), (1,0), (1,1), ..., (1,n), ...
+            for (int row = 0; row < weights.rows; row++, w++)
                 grad.put(row, w, btr.apply.get(col));
-        
-        for(int row = 0; row < weights.rows; row++, w++)
+
+        for (int row = 0; row < weights.rows; row++, w++)
             grad.put(row, w, 1);
-        
 
         ActivationFunction.AtVector actFuncAt = actFunc.ati(affineTransf(btr.apply));
-        
+
         return new BackTrackResult(
-                grad.mulColumnVector(actFuncAt.ddt), 
+                grad.mulColumnVector(actFuncAt.ddt),
                 actFuncAt.val
-        );        
+        );
     }
 
     /**
@@ -142,7 +179,7 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
      * @param vec The vector to undergo transformation. The vector is not
      * changed.
      * @return A new vector that is the apply of the affine transformation
- applied to vec.
+     * applied to vec.
      */
     public DoubleMatrix affineTransf(DoubleMatrix vec) {
         return (weights.mmul(vec)).add(bias);
@@ -181,7 +218,7 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
         if (hasSubLayer()) return subLayer.apply(x);
         return x;
     }
-    
+
     /**
      * Applies a single node in this layer to the given datum.
      *
