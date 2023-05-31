@@ -108,6 +108,12 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
         for (int row = 0; row < weights.rows; row++)
             grad.put(row, btr.grad.columns + weights.length + row, 1);
     }
+    
+    private BackTrackResult subLayerGrad(Datum x){
+        return hasSubLayer()
+                ? subLayer.grad(x)
+                : new BackTrackResult(DoubleMatrix.EMPTY, x);
+    }
 
     /**
      * The gradient of this layer as a function of the weights and biases
@@ -115,15 +121,13 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
      *
      * @param x The point the neural network is being applied to. For the
      * purposes of computing the gradient, this is considered a constant.
-     * @return The gradient of this method and the result of applying the layer
+     * @return The of this method and the result of applying the layer
      * to x. In the gradient vector, each row is the gradient over all the
      * weights and biases for one of the highest layer nodes.
      */
     public BackTrackResult grad(Datum x) {
 
-        BackTrackResult btr = hasSubLayer()
-                ? subLayer.grad(x)
-                : new BackTrackResult(DoubleMatrix.EMPTY, x);
+        BackTrackResult btr = subLayerGrad(x);
 
         DoubleMatrix grad
                 = new DoubleMatrix(arch.rows, arch.startIndex + arch.length());
