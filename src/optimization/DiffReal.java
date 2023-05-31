@@ -15,7 +15,8 @@ public interface DiffReal extends ToDoubleFunction<double[]>{
      * @param x The point at which the gradient is calculated.
      * @return The gradient at the function at x.
      */
-    public abstract DoubleMatrix grad(double[] x);
+    public DoubleMatrix grad(double[] x);
+    
     
     
     /**

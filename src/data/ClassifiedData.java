@@ -14,12 +14,12 @@ public interface ClassifiedData {
      */
     public abstract Stream<Datum> stream();
     
-    /**
-     * A stream of randomly selected elements.
-     * @param size The number of elements in the stream.
-     * @return A stream of randomly selected elements.
-     */
-    public abstract Stream<Datum> stochasticStream(int size);
+//    /**
+//     * A stream of randomly selected elements.
+//     * @param size The number of elements in the stream.
+//     * @return A stream of randomly selected elements.
+//     */
+//    public abstract Stream<Datum> stochasticStream(int size);
 
     /**
      * A parallel stream of data.
@@ -29,14 +29,14 @@ public interface ClassifiedData {
         return stream().parallel();
     }
     
-    /**
-     * A parallel stream of randomly selected elements.
-     * @param size The number of elements in the desired stream.
-     * @return A parallel stream of randomly selected data.
-     */
-    public default Stream<Datum> stochasticParallel(int size) {
-        return stochasticStream(size).parallel();
-    }
+//    /**
+//     * A parallel stream of randomly selected elements.
+//     * @param size The number of elements in the desired stream.
+//     * @return A parallel stream of randomly selected data.
+//     */
+//    public default Stream<Datum> stochasticParallel(int size) {
+//        return stochasticStream(size).parallel();
+//    }
 
     /**
      * The number of classifications available for data.

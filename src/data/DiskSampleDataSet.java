@@ -22,13 +22,13 @@ public class DiskSampleDataSet extends ArrayList<Datum> implements ClassifiedDat
     public Stream<Datum> stream() {
         return super.stream();
     }
-
-    @Override
-    public Stream<Datum> stochasticStream(int size) {//TODO, deal with large sizes
-        Set<Datum> set = new HashSet<>(size);
-        while(set.size() < size) set.add((get((int)(Math.random()*size()))));
-        return set.stream();
-    }
+//
+//    @Override
+//    public Stream<Datum> stochasticStream(int size) {//TODO, deal with large sizes
+//        Set<Datum> set = new HashSet<>(size);
+//        while(set.size() < size) set.add((get((int)(Math.random()*size()))));
+//        return set.stream();
+//    }
 
     
     /**

@@ -91,11 +91,11 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
         
         for(int col = 0; col < weights.columns; col++) //indecies ordered (0,0), (1,0), ..., (n, 0), (1,0), (1,1), ..., (1,n), ...
             for(int row = 0; row < weights.rows; row++, w++)
-                grad.putColumn(w, valAt(row, weights.rows, btr.apply.get(col)));
+                grad.put(row, w, btr.apply.get(col));
         
-        for(int row = 0; row < weights.rows; row++, w++){
-            grad.putColumn(w, valAt(row, weights.rows, 1));
-        }
+        for(int row = 0; row < weights.rows; row++, w++)
+            grad.put(row, w, 1);
+        
 
         ActivationFunction.AtVector actFuncAt = actFunc.ati(affineTransf(btr.apply));
         

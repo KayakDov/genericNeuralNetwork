@@ -62,11 +62,9 @@ public class NeuralNetworkBuilder extends RecursiveTask<NeuralNetwork> {
      * @return The gradient of the neural network as a function of its weights
      * and biases.
      */
-    private FuncAt gradCost(NeuralNetwork nn, int stochasticSize) {
+    private FuncAt gradCost(NeuralNetwork nn) {
         
-        return (stochasticSize != -1? 
-                trainingData.stochasticParallel(stochasticSize):
-                trainingData.parallel())
+        return trainingData.parallel()
                 .map(x -> nn.gradCost(x))
                 .collect(
                     () -> new FuncAt(
