@@ -9,18 +9,24 @@ import org.jblas.DoubleMatrix;
  */
 public class GradDescentBackTrack extends RecursiveTask<double[]>{
 
-    private final double gamma, c, tolerance;
-    private final DiffReal f;
+    protected final double gamma, c, tolerance;
+    protected DiffReal f;
+    protected final DoubleMatrix start;
 
+        
     /**
-     * The constructor.
-     * @param f The function to be minimized.
+     * 
+     * @param f The function to be minimized.  If this is stochastic, then the
+     * stochastic method should be implemented.
+     * @param tolerance The smaller this is, the more accurate the result will
+     * 
      */
     public GradDescentBackTrack(DiffReal f, double tolerance) {
         this.gamma = .5;
         this.c = .5;
         this.tolerance = tolerance;
         this.f = f;
+        start = DoubleMatrix.rand(f.domainDim());
     }
 
     /**
@@ -33,7 +39,7 @@ public class GradDescentBackTrack extends RecursiveTask<double[]>{
      * @return a new point along the direction of grad that has improved
      * f more than the slope of grad times c.
      */
-    private DoubleMatrix jump(DoubleMatrix from, FuncAt atX) {
+    protected DoubleMatrix jump(DoubleMatrix from, FuncAt atX) {
         double t = gamma;
         final double reducedSlope = c * atX.grad.dot(atX.grad);
 
@@ -47,7 +53,8 @@ public class GradDescentBackTrack extends RecursiveTask<double[]>{
         
         return to; 
     }
-
+    
+    
     /**
      * Finds the minimal value of the unconstrained function.
      * @return 
@@ -55,16 +62,26 @@ public class GradDescentBackTrack extends RecursiveTask<double[]>{
     @Override
     public double[] compute() {
         
-        DoubleMatrix x = DoubleMatrix.rand(f.domainDim());
+        DoubleMatrix x = start;
         FuncAt atX = f.funcAt(x.data);
 
-        while (atX.grad.dot(atX.grad) > tolerance) {
+        while (!atMin(atX.grad)) {
             
             x = jump(x, atX);
+            f = f.stochastic();
             atX = f.funcAt(x.data);
         }
 
         return x.data;
+    }
+    
+    /**
+     * Is this the minimum point?
+     * @param grad The gradient of the point.
+     * @return True if this is a local minimum, false otherwise.
+     */
+    protected boolean atMin(DoubleMatrix grad){
+        return grad.dot(grad) <= tolerance;
     }
     
     /**

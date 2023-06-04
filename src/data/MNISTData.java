@@ -1,28 +1,29 @@
 package data;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-import org.jblas.DoubleMatrix;
 
 /**
  *
  * @author Dov Neimand
  */
-public class MNISTData implements Iterator<MNISTDatum>{
+public class MNISTData implements Iterator<MNISTDatum>, ClassifiedData {
 
     public static final String dataFilePath = "MNISTData\\train-images-idx3-ubyte",
-            labelFilePath = "MNISTData\\train-labels-idx1-ubyte";
+            labelFilePath = "MNISTData\\train-labels-idx1-ubyte",
+            dataTestFilePath = "MNISTData\\t10k-images-idx3-ubyte",
+            labelTestFilePath = "MNISTData\\t10k-labels-idx1-ubyte";
 
-    private DataInputStream labelInputStream, dataInputStream;
+    private DataInputStream labelReader, dataReader;
 
     private int rows, cols, size, labelSize;
     public Datum[] data;
+
+    private final boolean bigSet;
 
     int index = 0;
 
@@ -32,24 +33,39 @@ public class MNISTData implements Iterator<MNISTDatum>{
         return new byte[]{dis.readByte(), dis.readByte()};
     }
 
-    public MNISTData() {
-
+    public final void resetFileReader() {
         try {
-            dataInputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(dataFilePath)));
-            labelInputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(labelFilePath)));
+            if (dataReader != null) close();
+            dataReader = new DataInputStream(new BufferedInputStream(new FileInputStream(bigSet ? dataFilePath : dataTestFilePath)));
+            labelReader = new DataInputStream(new BufferedInputStream(new FileInputStream(bigSet ? labelFilePath : labelTestFilePath)));
 
-            getMagicNumber(dataInputStream);
-            getMagicNumber(labelInputStream);
+            getMagicNumber(dataReader);
+            getMagicNumber(labelReader);
 
-            size = dataInputStream.readInt();
-            rows = dataInputStream.readInt();
-            cols = dataInputStream.readInt();
-
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(MNISTData.class.getName()).log(Level.SEVERE, null, ex);
+            size = dataReader.readInt();
+            rows = dataReader.readInt();
+            cols = dataReader.readInt();
+            
+            for(int i = 0; i < 4; i++) labelReader.read();
         } catch (IOException ex) {
             Logger.getLogger(MNISTData.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+    }
+
+    /**
+     *
+     * @param bigSet True to use the larger of the two data sets, false for the
+     * smaller. The larger should be used for training and the smaller for
+     * learning.
+     */
+    public MNISTData(boolean bigSet) {
+        this.bigSet = bigSet;
+        resetFileReader();
+
+        data = new Datum[size];
+        for (int i = 0; i < data.length; i++)
+            data[i] = next();
     }
 
     @Override
@@ -59,50 +75,47 @@ public class MNISTData implements Iterator<MNISTDatum>{
 
     @Override
     public MNISTDatum next() {
+
         try {
-            int label = labelInputStream.readUnsignedByte();
-            if(!hasNext()) close();
-            return new MNISTDatum(nextMatrix().data, label);
+            int label = labelReader.readUnsignedByte();
+            if (!hasNext()) close();
+            double[] ndr = new double[rows * cols];
+            for (int i = 0; i < ndr.length; i++)
+                ndr[i] = dataReader.readUnsignedByte();
+            index++;
+            return new MNISTDatum(ndr, label);
         } catch (IOException ex) {
             Logger.getLogger(MNISTData.class.getName()).log(Level.SEVERE, null, ex);
-            throw new RuntimeException();
+            throw new RuntimeException(ex);
         }
+
     }
-    
+
     /**
      * A stream of all the datum.
+     *
      * @return A stream of all the datum.
      */
-    public Stream<Datum> stream(){
-        return StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(this, Spliterator.ORDERED),
-          false);
-    }
-    
-    /**
-     * Each element in the data has a relativeSize chance of making it into
-     * the stream.
-     * @param relativeSize The probability that a given element is in the 
-     * stream.
-     * @return A stream cut down from the original.
-     */
-    public Stream<Datum> stochasticStream(double relativeSize){
-        return stream().filter(datum -> Math.random() < relativeSize);
+    @Override
+    public Stream<Datum> stream() {
+        return Arrays.stream(data);
     }
 
     /**
-     * The next matrix in the set.
+     * The next matrix in the set. Warning, the label index must be advanced as
+     * well if they're to be kept in sinc.
+     *
      * @return The next matrix in the set.
      */
-    public DoubleMatrix nextMatrix() {
+    public MNISTMatrix nextMatrix() {
 
         try {
-            DoubleMatrix val = new DoubleMatrix(rows, cols);
-            
+            MNISTMatrix val = new MNISTMatrix(rows, cols, labelReader.readUnsignedByte());
+
             for (int r = 0; r < rows; r++)
                 for (int c = 0; c < cols; c++)
-                    val.put(r, c, dataInputStream.readUnsignedByte());
-            
+                    val.put(c, r, dataReader.readUnsignedByte());
+
             index++;
             return val;
         } catch (IOException ex) {
@@ -111,18 +124,37 @@ public class MNISTData implements Iterator<MNISTDatum>{
         }
     }
 
+    /**
+     * The dimension of the data.
+     *
+     * @return The dimension of the data.
+     */
+    public int dataDim() {
+        return rows * cols;
+    }
+
     public static void main(String[] args) throws IOException {
-        MNISTData test = new MNISTData();
-        System.out.println(test.stream().count());
+
+        MNISTData test = new MNISTData(false);
+        for (int i = 0; i < 10; i++) {
+            MNISTMatrix m = new MNISTMatrix(test.rows, test.cols, test.data[i].data, test.data[i].type);
+            m.savePicture(m.classification + "_" + i + ".gif");
+            System.out.println(m.classification);
+        }
     }
 
     public void close() {
         try {
-            labelInputStream.close();
-            dataInputStream.close();
+            labelReader.close();
+            dataReader.close();
         } catch (IOException ex) {
             Logger.getLogger(MNISTData.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @Override
+    public int size() {
+        return size;
     }
 
 }

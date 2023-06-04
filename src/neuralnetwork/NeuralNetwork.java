@@ -2,6 +2,7 @@ package neuralnetwork;
 
 import data.Datum;
 import java.util.Arrays;
+import java.util.concurrent.RecursiveTask;
 import java.util.function.Function;
 import optimization.FuncAt;
 import org.jblas.DoubleMatrix;
@@ -45,18 +46,6 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix> {
      */
     public DoubleMatrix apply(double... x) {
         return apply(new DoubleMatrix(x));
-    }
-
-    /**
-     * Yields the result of one node in the outer most layer of the network
-     * applied to the given data.
-     *
-     * @param x The datum.
-     * @param node The index of the desired node.
-     * @return The value of the node when applied to the datum.
-     */
-    public double applyNode(DoubleMatrix x, int node) {
-        return topLayer.applyNode(x, node);
     }
 
     /**
@@ -127,6 +116,20 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix> {
         return forecast.dot(forecast);
     }
 
+    /**
+     * Does this neural network give the correct result for the datum.
+     * @param x The datum being checked.
+     * @return True if the network yields the correct result, false otherwise.
+     */
+    public boolean correctlyPredicts(Datum x){
+        DoubleMatrix apply = apply(x);
+        int argMax = 0;
+        for(int i = 1; i < apply.length; i++)
+            if(apply.get(i) > apply.get(argMax)) argMax = i;
+        
+        return argMax == x.type; 
+    }
+    
     public static void main(String[] args) {
         DoubleMatrix id = new DoubleMatrix(2, 2, 1, 0, 0, 1);
         DoubleMatrix m = new DoubleMatrix(2, 2, 1, 2, 3, 4);//TODO: Check every data access!

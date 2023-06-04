@@ -53,4 +53,10 @@ public interface ClassifiedData {
     public default int dim(){
         return stream().findAny().get().length;
     }
+    
+    /**
+     * The size of the data.
+     * @return The size of the data.
+     */
+    public int size();
 }

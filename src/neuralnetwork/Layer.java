@@ -42,17 +42,6 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
         arch = layerArch;
     }
 
-    /**
-     * Applies a node in the sublayer.
-     *
-     * @param row The node to be applied.
-     * @param x The datum on which the node is applied.
-     * @return The value of the sublayer node on the datum.
-     */
-    public double subLayer(DoubleMatrix x, int row) {
-        if (hasSubLayer()) return subLayer.applyNode(x, row);
-        return x.get(row);
-    }
 
     /**
      * A container for the results of backtracking.
@@ -77,10 +66,9 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
      * @param btr The results from the sublayer.
      */
     private void wInOperand(DoubleMatrix grad, BackTrackResult btr) {
-        if (hasSubLayer()) {
+        if (hasSubLayer()) 
             System.arraycopy(weights.mmul(btr.grad).data, 0,
                     grad.data, 0, weights.rows * btr.grad.columns);
-        }
     }
 
     /**
@@ -145,20 +133,6 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
     }
 
     /**
-     * Creates a vector of 0's except at the proffered index which holds val.
-     *
-     * @param val The lone non zero value in the vector.
-     * @param index The index of the non zero value.
-     * @param length The length of the vector.
-     * @return A new vector of zeros with val at the given index.
-     */
-    private DoubleMatrix valAt(int index, int length, double val) {
-        DoubleMatrix vec = new DoubleMatrix(length);
-        vec.data[index] = val;
-        return vec;
-    }
-
-    /**
      * Creates a neural layer from a vector
      *
      * @param vector The vector of all the weights and biases for the neural
@@ -184,29 +158,12 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
      * applied to vec.
      */
     public DoubleMatrix affineTransf(DoubleMatrix vec) {
-        return (weights.mmul(vec)).add(bias);
-    }
-
-    /**
-     * A specific row of the affine transformation applied to the given vector.
-     * The method is implemented directly for speed.
-     *
-     * @param vec The vector the affine transformation is applied to.
-     * @param row The desired row of the apply.
-     * @return The requested row of the affine transformation applied to vec.
-     */
-    public double affineTransf(DoubleMatrix vec, int row) {
-        double affTrans = 0;
-
-        for (int i = 0; i < vec.length; i++)
-            affTrans += vec.get(i) * weights.get(row, i);
-
-        return affTrans + bias.get(row);
+        return (weights.mmul(vec)).addi(bias);
     }
 
     @Override
     public DoubleMatrix apply(DoubleMatrix vec) {
-        return actFunc.apply(affineTransf(operand(vec)));
+        return actFunc.applyi(affineTransf(operand(vec)));
     }
 
     /**
@@ -219,17 +176,6 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
     public DoubleMatrix operand(DoubleMatrix x) {
         if (hasSubLayer()) return subLayer.apply(x);
         return x;
-    }
-
-    /**
-     * Applies a single node in this layer to the given datum.
-     *
-     * @param vec The datum that a node in this layer is t be applied to.
-     * @param node The index of the node in this layer that is to be used.
-     * @return The value of the indexed node in this layer over the datum.
-     */
-    public double applyNode(DoubleMatrix vec, int node) {
-        return actFunc.apply(affineTransf(operand(vec), node));
     }
 
     /**

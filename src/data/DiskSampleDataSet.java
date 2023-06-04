@@ -4,9 +4,8 @@ import data.ClassifiedData;
 import data.Datum;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.jblas.DoubleMatrix;
@@ -84,6 +83,8 @@ public class DiskSampleDataSet extends ArrayList<Datum> implements ClassifiedDat
         super(Arrays.stream(disks).mapToInt(disk -> disk.numPoints).sum());
         Arrays.stream(disks).forEach(disk -> disk.numDisks = disks.length);
         IntStream.range(0, disks.length).forEach(i -> addAll(disks[i].vectors(i)));
+        Collections.shuffle(this);
+        
     }
 
 }
