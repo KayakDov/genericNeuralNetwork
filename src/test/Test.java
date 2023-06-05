@@ -2,7 +2,6 @@ package test;
 
 import Data.DiskSampleDataSet;
 import data.ClassifiedData;
-import data.Datum;
 import data.MNISTData;
 import neuralnetwork.NetworkArchitecture;
 import neuralnetwork.NeuralNetwork;
@@ -10,6 +9,7 @@ import neuralnetwork.NeuralNetworkBuilder;
 import neuralnetwork.ActivationFunctions.Sigmoid;
 import optimization.GradDescentBackTrack;
 import org.jblas.DoubleMatrix;
+import org.jblas.NativeBlas;
 
 /**
  *
@@ -27,31 +27,47 @@ public class Test {
                 });
     }
 
-    public static void testMNIST(){
-        ClassifiedData trainingData = new MNISTData(true);
-        NetworkArchitecture nw = new NetworkArchitecture(new Sigmoid(), trainingData.dim(), 16, 16, 10);//16, 16, 10 for image recognition.
-        double[] x = new GradDescentBackTrack(new NeuralNetworkBuilder(trainingData, nw), 1e-5).invoke();
-        NeuralNetwork nn = new NeuralNetwork(x, nw);
-        
-        MNISTData testData = new MNISTData(false);
+    public static void simpleTest() {
+        ClassifiedData data = data();
+        NetworkArchitecture nw = new NetworkArchitecture(new Sigmoid(), data.dim(), 3, 3);//16, 16, 10 for image recognition.
+        double[] x = new GradDescentBackTrack(new NeuralNetworkBuilder(data(), nw), 1e-12).invoke();
 
-        double succeed = 0, fail = 0;
-        while(testData.hasNext()){
-            
-            if(nn.correctlyPredicts(testData.next()))
-                succeed++;
-            else fail++;
-        }
-            
-        System.out.println(succeed/(succeed + fail));
+        NeuralNetwork nn = new NeuralNetwork(x, nw);
+
+        System.out.println(nn.apply(0.0, 0));
+        System.out.println(nn.apply(0, 1));
+        System.out.println(nn.apply(0, 2));
+        System.out.println(nn.apply(2, 0));
     }
+
+    public static void MNIST() {
+        ClassifiedData data = new MNISTData(true);
+        NetworkArchitecture nw = new NetworkArchitecture(new Sigmoid(), data.dim(), 16, 16, 10);//16, 16, 10 for image recognition.
+        double[] x = new GradDescentBackTrack(new NeuralNetworkBuilder(data, nw), 1e-3).invoke();
+
+        NeuralNetwork nn = new NeuralNetwork(x, nw);
+
+        MNISTData testSet = new MNISTData(false);
+
+        long correct = testSet.parallel().filter(datum -> nn.correctlyPredicts(datum)).count();
+
+        System.out.println((double) correct / testSet.size());
+    }
+
     
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {//TODO: set up stochastic gradient descent.
+//        MNIST();
+        simpleTest();
 
-        testMNIST();
+//        DoubleMatrix a = new DoubleMatrix(2, 2, new double[]{1, 0, 0, 1});
+//        DoubleMatrix b = new DoubleMatrix(2, 2, new double[]{1, 1, 1, 1});
+//        DoubleMatrix c = new DoubleMatrix(2, 4);
+//        gemm(a, b, c);
+//        System.out.println(c.toString());
 
     }
 

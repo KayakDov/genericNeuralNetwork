@@ -1,5 +1,6 @@
 package neuralnetwork;
 
+import com.sun.jdi.DoubleValue;
 import data.Datum;
 import java.util.Arrays;
 import java.util.concurrent.RecursiveTask;
@@ -36,6 +37,15 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix> {
     @Override
     public DoubleMatrix apply(DoubleMatrix x) {
         return topLayer.apply(x);
+    }
+    
+    /**
+     * This method attempts to classify x;
+     * @param x Some datum.
+     * @return The predicted classification of x.
+     */
+    public int prediction(DoubleMatrix x){
+        return apply(x).argmax();
     }
 
     /**
@@ -84,6 +94,15 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix> {
     }
 
     /**
+     * QUickly transposes a vector in place.
+     * @param vec The vector to be transposed.
+     */
+    private static DoubleMatrix transpose(DoubleMatrix vec){
+        vec.rows = 1;
+        vec.columns = vec.length;
+        return vec;
+    }
+    /**
      * The gradient of the neural network relative to the weights and biases at
      * x.
      *
@@ -91,12 +110,10 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix> {
      * @return The gradient of the cost.
      */
     public FuncAt gradCost(Datum x) {
-        Layer.BackTrackResult btr = topLayer.grad(x);
-        btr.apply.data[x.type] -= 1;
-        btr.apply.rows = 1;
-        btr.apply.columns = btr.apply.length;
-        DoubleMatrix grad = btr.apply.mmul(btr.grad);
-        return new FuncAt(grad, btr.apply.dot(btr.apply));
+        Layer.BackTrackResult nnResult = topLayer.grad(x);
+        nnResult.val.data[x.type] -= 1;
+        DoubleMatrix gradCost = transpose(nnResult.val).mmul(nnResult.grad);
+        return new FuncAt(gradCost, nnResult.val.dot(nnResult.val));
     }
 
     /**
@@ -122,12 +139,7 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix> {
      * @return True if the network yields the correct result, false otherwise.
      */
     public boolean correctlyPredicts(Datum x){
-        DoubleMatrix apply = apply(x);
-        int argMax = 0;
-        for(int i = 1; i < apply.length; i++)
-            if(apply.get(i) > apply.get(argMax)) argMax = i;
-        
-        return argMax == x.type; 
+        return apply(x).argmax() == x.type; 
     }
     
     public static void main(String[] args) {

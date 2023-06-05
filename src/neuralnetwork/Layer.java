@@ -4,9 +4,10 @@ import neuralnetwork.ActivationFunctions.ActivationFunction;
 import data.Datum;
 import java.util.function.Function;
 import org.jblas.DoubleMatrix;
+import org.jblas.NativeBlas;
 
 /**
- *
+ * A layer of the neural network.
  * @author Dov Neimand
  */
 public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
@@ -49,14 +50,24 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
     public class BackTrackResult {
 
         public final DoubleMatrix grad;
-        public final DoubleMatrix apply;
+        public final DoubleMatrix val;
 
         public BackTrackResult(DoubleMatrix grad, DoubleMatrix result) {
             this.grad = grad;
-            this.apply = result;
+            this.val = result;
         }
     }
 
+    /**
+     * Adds the product of a and b to the beginning of c.
+     * @param a The first matrix, n x m.
+     * @param b The second matrix, m x r.
+     * @param c The resulting matrix n x p where p > r.
+     */
+    private static void gemm(DoubleMatrix a, DoubleMatrix b, DoubleMatrix c) {
+        NativeBlas.dgemm('N', 'N', c.rows, b.columns, a.columns, 1, a.data, 0, a.rows, b.data, 0, b.rows, 1, c.data, 0, c.rows);
+    }
+    
     /**
      * This method calculated the partial derivative of weights and biases that
      * are in the operand. Multiplies the weights by the gradient of the
@@ -66,9 +77,9 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
      * @param btr The results from the sublayer.
      */
     private void wInOperand(DoubleMatrix grad, BackTrackResult btr) {
-        if (hasSubLayer()) 
-            System.arraycopy(weights.mmul(btr.grad).data, 0,
-                    grad.data, 0, weights.rows * btr.grad.columns);
+        if (hasSubLayer())  gemm(weights, btr.grad, grad);
+//            System.arraycopy(weights.mmul(btr.grad).data, 0,
+//                    grad.data, 0, weights.rows * btr.grad.columns);
     }
 
     /**
@@ -82,7 +93,7 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
     public void wIsWeight(DoubleMatrix grad, BackTrackResult btr) {
         for (int col = 0, w = 0; col < weights.columns; col++) //indecies ordered (0,0), (1,0), ..., (n, 0), (1,0), (1,1), ..., (1,n), ...
             for (int row = 0; row < weights.rows; row++, w++)
-                grad.put(row, btr.grad.columns + w, btr.apply.get(col));
+                grad.put(row, btr.grad.columns + w, btr.val.get(col));
     }
 
     /**
@@ -124,7 +135,7 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
         wIsWeight(grad, btr);
         wIsBias(grad, btr);
         
-        ActivationFunction.AtVector actFuncAt = actFunc.ati(affineTransf(btr.apply));
+        ActivationFunction.AtVector actFuncAt = actFunc.ati(affineTransf(btr.val));
 
         return new BackTrackResult(
                 grad.mulColumnVector(actFuncAt.ddt),
@@ -154,8 +165,8 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
      *
      * @param vec The vector to undergo transformation. The vector is not
      * changed.
-     * @return A new vector that is the apply of the affine transformation
-     * applied to vec.
+     * @return A new vector that is the val of the affine transformation
+ applied to vec.
      */
     public DoubleMatrix affineTransf(DoubleMatrix vec) {
         return (weights.mmul(vec)).addi(bias);
