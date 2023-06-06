@@ -157,6 +157,13 @@ public class MNISTData implements Iterator<MNISTDatum>, ClassifiedData {
         return size;
     }
 
+    @Override
+    public Datum[] array() {
+        return data;
+    }
+    
+    
+
 }
 
 //http://yann.lecun.com/exdb/mnist/#:~:text=The%20magic%20number%20is%20an,2%20bytes%20are%20always%200.&text=The%204%2Dth%20byte%20codes,most%20non%2DIntel%20processors).

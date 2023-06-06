@@ -2,6 +2,7 @@ package neuralnetwork;
 
 import com.sun.jdi.DoubleValue;
 import data.Datum;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.concurrent.RecursiveTask;
 import java.util.function.Function;
@@ -12,12 +13,12 @@ import org.jblas.DoubleMatrix;
  *
  * @author Dov Neimand
  */
-public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix> {
+public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix>, Serializable {
 
     private Layer topLayer;
 
     /**
-     * The networks arch.
+     * The networks architecture.
      */
     public final NetworkArchitecture architecture;
 

@@ -9,11 +9,10 @@ import neuralnetwork.NeuralNetworkBuilder;
 import neuralnetwork.ActivationFunctions.Sigmoid;
 import optimization.GradDescentBackTrack;
 import org.jblas.DoubleMatrix;
-import org.jblas.NativeBlas;
 
 /**
  *
- * @author Kayak
+ * @author Dov Neimand
  */
 public class Test {
 
@@ -42,8 +41,9 @@ public class Test {
 
     public static void MNIST() {
         ClassifiedData data = new MNISTData(true);
-        NetworkArchitecture nw = new NetworkArchitecture(new Sigmoid(), data.dim(), 16, 16, 10);//16, 16, 10 for image recognition.
-        double[] x = new GradDescentBackTrack(new NeuralNetworkBuilder(data, nw), 1e-3).invoke();
+        
+        NetworkArchitecture nw = new NetworkArchitecture(new Sigmoid(), data.dim(), 150, 75, 10);//16, 16, 10 for image recognition.
+        double[] x = new GradDescentBackTrack(new NeuralNetworkBuilder(data, nw), 1e-4).invoke();
 
         NeuralNetwork nn = new NeuralNetwork(x, nw);
 
@@ -60,14 +60,19 @@ public class Test {
      * @param args the command line arguments
      */
     public static void main(String[] args) {//TODO: set up stochastic gradient descent.
-//        MNIST();
-        simpleTest();
+        MNIST();
+//        simpleTest();
 
-//        DoubleMatrix a = new DoubleMatrix(2, 2, new double[]{1, 0, 0, 1});
-//        DoubleMatrix b = new DoubleMatrix(2, 2, new double[]{1, 1, 1, 1});
-//        DoubleMatrix c = new DoubleMatrix(2, 4);
-//        gemm(a, b, c);
-//        System.out.println(c.toString());
+//        DoubleMatrix a = new DoubleMatrix(2, 2, new double[]{1,2,3,4});
+//        DoubleMatrix b = new DoubleMatrix(2, 2, new double[]{1,0,0,1});
+//        DoubleMatrix c = new DoubleMatrix(4, 4);
+//        
+//        c.rows = c.columns = 2;
+//        
+//        a.mmuli(b, c);
+//        
+//        System.out.println(c);
+//        System.out.println(c.data.length);
 
     }
 

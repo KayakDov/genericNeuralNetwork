@@ -29,15 +29,6 @@ public interface ClassifiedData {
         return stream().parallel();
     }
     
-//    /**
-//     * A parallel stream of randomly selected elements.
-//     * @param size The number of elements in the desired stream.
-//     * @return A parallel stream of randomly selected data.
-//     */
-//    public default Stream<Datum> stochasticParallel(int size) {
-//        return stochasticStream(size).parallel();
-//    }
-
     /**
      * The number of classifications available for data.
      * @return The number of classifications available for data.
@@ -59,4 +50,8 @@ public interface ClassifiedData {
      * @return The size of the data.
      */
     public int size();
+    
+    public default Datum[] array(){
+        return stream().toArray(Datum[]::new);
+    }
 }

@@ -18,7 +18,6 @@ public class NeuralNetworkBuilder implements DiffReal {
     private final NetworkArchitecture layerDims;
 
     /**
-     * TODO: pass network architecture as single variable?
      *
      * @param data The data used to train the network.
      * @param architecture The number of nodes in each layer.
@@ -39,7 +38,7 @@ public class NeuralNetworkBuilder implements DiffReal {
 
         this.trainingData = data;
         this.layerDims = architecture;
-        subDataInc = (int)Math.sqrt(trainingData.size());
+        subDataInc = (int) Math.sqrt(trainingData.size());
     }
 
     /**
@@ -93,20 +92,21 @@ public class NeuralNetworkBuilder implements DiffReal {
     public FuncAt funcAt(double[] x) {
         return gradCost(new NeuralNetwork(x, layerDims));
     }
-    
+
     private int subDataStart = 0;
     private final int subDataInc;
+
     @Override
-    public DiffReal stochastic(){
-        int end = (subDataStart + subDataInc)%trainingData.size();
+    public DiffReal stochastic() {
+        int end = (subDataStart + subDataInc) % trainingData.size();
         DiffReal stochastic = new NeuralNetworkBuilder(
                 new ClassifiedData() {
             @Override
             public Stream<Datum> stream() {
-                
-                if(end < subDataStart) 
+
+                if (end < subDataStart)
                     return Stream.concat(
-                            trainingData.stream().limit(end), 
+                            trainingData.stream().limit(end),
                             trainingData.stream().skip(subDataStart)
                     );
                 else return trainingData.stream().skip(subDataStart).limit(end);
@@ -116,14 +116,14 @@ public class NeuralNetworkBuilder implements DiffReal {
             public int size() {
                 return subDataInc;
             }
-        }, 
+        },
                 layerDims
-        ){
+        ) {
             @Override
             public DiffReal stochastic() {
                 return NeuralNetworkBuilder.this.stochastic();
             }
-            
+
         };
         subDataStart = (subDataStart + subDataInc) % trainingData.size();
         return stochastic;

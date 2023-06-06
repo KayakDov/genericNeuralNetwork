@@ -15,7 +15,7 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
     private DoubleMatrix weights, bias;
     public final ActivationFunction actFunc;
     public final Layer subLayer;
-    public final LayerArchitecture arch;
+    public final LayerArchitecture architecture;
 
     /**
      * Does this layer have a sublayer?
@@ -35,12 +35,18 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
      * this layer is called directly on the data.
      * @layerArch The architecture for this layer.
      */
-    private Layer(DoubleMatrix weights, DoubleMatrix bias, ActivationFunction af, Layer subLayer, LayerArchitecture layerArch) {
+    private Layer(
+            DoubleMatrix weights, 
+            DoubleMatrix bias, 
+            ActivationFunction af, 
+            Layer subLayer, 
+            LayerArchitecture layerArch) {
+        
         this.weights = weights;
         this.bias = bias;
         this.actFunc = af;
         this.subLayer = subLayer;
-        arch = layerArch;
+        architecture = layerArch;
     }
 
 
@@ -78,8 +84,6 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
      */
     private void wInOperand(DoubleMatrix grad, BackTrackResult btr) {
         if (hasSubLayer())  gemm(weights, btr.grad, grad);
-//            System.arraycopy(weights.mmul(btr.grad).data, 0,
-//                    grad.data, 0, weights.rows * btr.grad.columns);
     }
 
     /**
@@ -129,7 +133,7 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
         BackTrackResult btr = subLayerGrad(x);
 
         DoubleMatrix grad
-                = new DoubleMatrix(arch.rows, arch.startIndex + arch.length());
+                = new DoubleMatrix(architecture.rows, architecture.startIndex + architecture.length());
 
         wInOperand(grad, btr);
         wIsWeight(grad, btr);
@@ -138,7 +142,7 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
         ActivationFunction.AtVector actFuncAt = actFunc.ati(affineTransf(btr.val));
 
         return new BackTrackResult(
-                grad.mulColumnVector(actFuncAt.ddt),
+                grad.muliColumnVector(actFuncAt.ddt),
                 actFuncAt.val
         );
     }
@@ -148,7 +152,7 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
      *
      * @param vector The vector of all the weights and biases for the neural
      * network.
-     * @param ld The arch for this layer.
+     * @param ld The architecture for this layer.
      * @param sub The sublayer of this layer.
      */
     public Layer(double[] vector, LayerArchitecture ld, ActivationFunction af, Layer sub) {

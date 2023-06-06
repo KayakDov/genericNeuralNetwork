@@ -4,7 +4,6 @@ import java.util.concurrent.RecursiveTask;
 import org.jblas.DoubleMatrix;
 
 /**
- * TODO: Extract an interface so that any optimization method may be used.
  * @author Dov Neimand
  */
 public class GradDescentBackTrack extends RecursiveTask<double[]>{
@@ -26,7 +25,7 @@ public class GradDescentBackTrack extends RecursiveTask<double[]>{
         this.c = .5;
         this.tolerance = tolerance;
         this.f = f;
-        start = DoubleMatrix.rand(f.domainDim());
+        start = DoubleMatrix.randn(f.domainDim());
     }
 
     /**
