@@ -1,17 +1,20 @@
 
 package neuralnetwork;
 
+import java.io.Serializable;
+
 /**
  * This class describes the dimensions of a layer of a neural network.
  * @author Dov Neimand
  */
-public class LayerArchitecture {
+public class LayerArchitecture implements Serializable{
     /**
      * Each row is meant to represent a node, and the number of columns is the
      * number of weights in each node.  The number of columns does not include
      * the bias.
      */
     public final int rows, cols, startIndex;
+    public final Architecture networkArchitecture;
 
     /**
      * 
@@ -22,10 +25,11 @@ public class LayerArchitecture {
      * @param numWightsPerNode The number of weights each node has. This is the
      * number of columns int the layer's matrix.
      */
-    public LayerArchitecture(int numNodes, int numWightsPerNode, int startIndex) {
+    public LayerArchitecture(int numNodes, int numWightsPerNode, int startIndex, Architecture network) {
         this.rows = numNodes;
         this.cols = numWightsPerNode;
         this.startIndex = startIndex;
+        networkArchitecture = network;
     }
     
     /**

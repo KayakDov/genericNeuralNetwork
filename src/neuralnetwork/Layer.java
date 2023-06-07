@@ -2,6 +2,7 @@ package neuralnetwork;
 
 import neuralnetwork.ActivationFunctions.ActivationFunction;
 import data.Datum;
+import java.io.Serializable;
 import java.util.function.Function;
 import org.jblas.DoubleMatrix;
 import org.jblas.NativeBlas;
@@ -10,7 +11,7 @@ import org.jblas.NativeBlas;
  * A layer of the neural network.
  * @author Dov Neimand
  */
-public class Layer implements Function<DoubleMatrix, DoubleMatrix> {
+public class Layer implements Function<DoubleMatrix, DoubleMatrix>, Serializable {
 
     private DoubleMatrix weights, bias;
     public final ActivationFunction actFunc;

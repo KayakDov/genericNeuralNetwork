@@ -15,7 +15,7 @@ import optimization.FuncAt;
 public class NeuralNetworkBuilder implements DiffReal {
 
     private final ClassifiedData trainingData;
-    private final NetworkArchitecture layerDims;
+    private final Architecture layerDims;
 
     /**
      *
@@ -24,7 +24,7 @@ public class NeuralNetworkBuilder implements DiffReal {
      * @param af The activation function used by each node.
      * @param A greater than 0 value used for the optimization
      */
-    public NeuralNetworkBuilder(ClassifiedData data, NetworkArchitecture architecture) {
+    public NeuralNetworkBuilder(ClassifiedData data, Architecture architecture) {
         if (data.numTypes() != architecture.outputDim())
             throw new IllegalArgumentException("The number of output dimensions, "
                     + architecture.outputDim()

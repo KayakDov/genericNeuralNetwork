@@ -1,5 +1,6 @@
 package neuralnetwork.ActivationFunctions;
 
+import java.io.Serializable;
 import java.util.function.DoubleUnaryOperator;
 import org.jblas.DoubleMatrix;
 
@@ -7,7 +8,7 @@ import org.jblas.DoubleMatrix;
  *
  * @author Dov Neimand
  */
-public interface ActivationFunction extends DoubleUnaryOperator {
+public interface ActivationFunction extends DoubleUnaryOperator, Serializable{
 
     /**
      * The derivative of this function.

@@ -1,10 +1,13 @@
 package neuralnetwork;
 
-import com.sun.jdi.DoubleValue;
 import data.Datum;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.concurrent.RecursiveTask;
 import java.util.function.Function;
 import optimization.FuncAt;
 import org.jblas.DoubleMatrix;
@@ -20,7 +23,7 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix>, Seri
     /**
      * The networks architecture.
      */
-    public final NetworkArchitecture architecture;
+    public final Architecture architecture;
 
     /**
      * Creates a neural network from a vector in Rn and information about each
@@ -29,7 +32,7 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix>, Seri
      * @param x The vector he network is generated from.
      * @param layerDims A description of each layer's size.
      */
-    public NeuralNetwork(double[] x, NetworkArchitecture layerDims) {
+    public NeuralNetwork(double[] x, Architecture layerDims) {
         architecture = layerDims;
         for (int layerInd = 0; layerInd < layerDims.numLayers(); layerInd++)
             topLayer = new Layer(x, layerDims.get(layerInd), layerDims.getActFunc(), topLayer);
@@ -142,6 +145,28 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix>, Seri
     public boolean correctlyPredicts(Datum x){
         return apply(x).argmax() == x.type; 
     }
+    
+    /**
+     * Saves this neural network to a file.
+     * @param fileName The name of the file.
+     */
+    public void saveToFile(String fileName) 
+            throws FileNotFoundException, IOException{
+        new ObjectOutputStream(new FileOutputStream(fileName))
+                .writeObject(this);
+    }
+
+    /**
+     * Constructs a saves neural network from a file.
+     * @return A neural network that was saved to a file.
+     */
+    public static NeuralNetwork fromFile(String fileName) 
+            throws FileNotFoundException, IOException, ClassNotFoundException{
+        return (NeuralNetwork)new ObjectInputStream(
+                new FileInputStream(fileName)).readObject();
+    }
+    
+    
     
     public static void main(String[] args) {
         DoubleMatrix id = new DoubleMatrix(2, 2, 1, 0, 0, 1);

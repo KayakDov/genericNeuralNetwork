@@ -3,7 +3,7 @@ package test;
 import Data.DiskSampleDataSet;
 import data.ClassifiedData;
 import data.MNISTData;
-import neuralnetwork.NetworkArchitecture;
+import neuralnetwork.Architecture;
 import neuralnetwork.NeuralNetwork;
 import neuralnetwork.NeuralNetworkBuilder;
 import neuralnetwork.ActivationFunctions.Sigmoid;
@@ -28,7 +28,7 @@ public class Test {
 
     public static void simpleTest() {
         ClassifiedData data = data();
-        NetworkArchitecture nw = new NetworkArchitecture(new Sigmoid(), data.dim(), 3, 3);//16, 16, 10 for image recognition.
+        Architecture nw = new Architecture(new Sigmoid(), data.dim(), 3, 3);//16, 16, 10 for image recognition.
         double[] x = new GradDescentBackTrack(new NeuralNetworkBuilder(data(), nw), 1e-12).invoke();
 
         NeuralNetwork nn = new NeuralNetwork(x, nw);
@@ -42,7 +42,7 @@ public class Test {
     public static void MNIST() {
         ClassifiedData data = new MNISTData(true);
         
-        NetworkArchitecture nw = new NetworkArchitecture(new Sigmoid(), data.dim(), 150, 75, 10);//16, 16, 10 for image recognition.
+        Architecture nw = new Architecture(new Sigmoid(), data.dim(), 100, 50, 10);//16, 16, 10 for image recognition.
         double[] x = new GradDescentBackTrack(new NeuralNetworkBuilder(data, nw), 1e-4).invoke();
 
         NeuralNetwork nn = new NeuralNetwork(x, nw);
