@@ -55,6 +55,10 @@ public interface DiffReal extends ToDoubleFunction<double[]>{
         return at(x.data);
     }
     
+    /**
+     * The dimension of the domain of this function.
+     * @return The dimension of the domain of this function.
+     */
     public abstract int domainDim();
     
     /**

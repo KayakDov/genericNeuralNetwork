@@ -16,6 +16,10 @@ import org.jblas.DoubleMatrix;
  */
 public class Test {
 
+    /**
+     * Generates data for testing.
+     * @return Data for testing.
+     */
     public static DiskSampleDataSet data() {
         int numPointsInSet = 1000;
         return new DiskSampleDataSet(
@@ -26,6 +30,9 @@ public class Test {
                 });
     }
 
+    /**
+     * A simple test of the neural network.
+     */
     public static void simpleTest() {
         ClassifiedData data = data();
         Architecture nw = new Architecture(new Sigmoid(), data.dim(), 3, 3);//16, 16, 10 for image recognition.
@@ -39,6 +46,9 @@ public class Test {
         System.out.println(nn.apply(2, 0));
     }
 
+    /**
+     * Tests using mnist data.  Hopefully this would work on a system with more resources.
+     */
     public static void MNIST() {
         ClassifiedData data = new MNISTData(true);
         

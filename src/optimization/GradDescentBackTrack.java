@@ -4,12 +4,30 @@ import java.util.concurrent.RecursiveTask;
 import org.jblas.DoubleMatrix;
 
 /**
+ * Runs gradient descent back tracking.
  * @author Dov Neimand
  */
 public class GradDescentBackTrack extends RecursiveTask<double[]>{
 
-    protected final double gamma, c, tolerance;
+    /**
+     * The rate at which the step size decreases.
+     */
+    protected final double gamma, 
+            /**
+             * Used to set the jump size.  See literature.
+             */
+            c,             
+            /**
+             * The tolerance for a correct answer.
+             */
+            tolerance;
+    /**
+     * The function being optimized.
+     */
     protected DiffReal f;
+    /**
+     * A fist guess for what the minimum might be.
+     */
     protected final DoubleMatrix start;
 
         

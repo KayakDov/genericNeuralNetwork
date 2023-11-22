@@ -20,11 +20,9 @@ public class Architecture {
     /**
      * The constructor.
      *
+     * @param af The activation function for this architecture.
      * @param dataDim The dimension / size of each data vector that will be fed
      * into the neural network.
-     * @param outputDim The number of categories the nueral network will choose
-     * from.
-     * @param at The activation function of the network.
      * @param numNodesPerLayer The number of nodes in each layer. Note, an
      * illegal argument exception is thrown if the number of nodes in the last
      * layer does not equal outputDim.
@@ -120,7 +118,7 @@ public class Architecture {
      * Finds the index in the vector that describes a neural networks weights
      * and biases.
      *
-     * @param marix The index of the desired layer.
+     * @param matrix The index of the matrix in dims.
      * @param row The index of the desired row.
      * @param col The index of the desired column. This should be -1 for a bias.
      * @return The index in the Rn vector describing a neural network with these
@@ -164,13 +162,13 @@ public class Architecture {
                     - dims[matrixInd].numWeights(), ind);
         else
             return new Indices(matrixInd, localInd % dims[matrixInd].rows, localInd
-                    / dims[matrixInd].rows, ind);
+                    / dims[matrixInd].rows);
     }
 
     /**
      * Checks if the proffered index actually exists.
      *
-     * @param ind An index whos validity needs to be checked.
+     * @param ind An index whose validity needs to be checked.
      * @return True if the index might be valid, false if it is definitely not.
      */
     public boolean isIndex(Indices ind) {
@@ -208,6 +206,10 @@ public class Architecture {
         return dims[argMax].rows;
     }
 
+    /**
+     * Runs some basic tests on this class.
+     * @param args Not used.
+     */
     public static void main(String[] args) {
         Architecture dims = new Architecture(new Sigmoid(), 2, 3, 2);
         System.out.println(dims.toString());

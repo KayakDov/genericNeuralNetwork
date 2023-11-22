@@ -102,6 +102,11 @@ public interface ActivationFunction extends DoubleUnaryOperator, Serializable{
          */
         public final double ddt;
 
+        /**
+         * The constructor
+         * @param d The value of this function at the operand.
+         * @param ddt The value of the derivative of this function at the operand.
+         */
         public AtScalar(double d, double ddt) {
             this.val = d;
             this.ddt = ddt;

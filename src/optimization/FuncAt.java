@@ -18,6 +18,11 @@ public class FuncAt {
      */
     public double val;
 
+    /**
+     * The constructor.
+     * @param grad The gradient of this function at the given point.
+     * @param val The value of the function at the given point.
+     */
     public FuncAt(DoubleMatrix grad, double val) {
         this.grad = grad;
         this.val = val;

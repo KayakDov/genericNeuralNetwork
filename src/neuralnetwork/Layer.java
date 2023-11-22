@@ -14,8 +14,17 @@ import org.jblas.NativeBlas;
 public class Layer implements Function<DoubleMatrix, DoubleMatrix>, Serializable {
 
     private DoubleMatrix weights, bias;
+    /**
+     * The activation function for this layer.
+     */
     public final ActivationFunction actFunc;
+    /**
+     * The sublayer beneath this layer.
+     */
     public final Layer subLayer;
+    /**
+     * The architecture of this layer.
+     */
     public final LayerArchitecture architecture;
 
     /**
@@ -56,9 +65,21 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix>, Serializable
      */
     public class BackTrackResult {
 
+        /**
+         * The gradient.
+         */
         public final DoubleMatrix grad;
+        
+        /**
+         * The values.
+         */
         public final DoubleMatrix val;
 
+        /**
+         * THe constructor
+         * @param grad The gradient.
+         * @param result The results of the back tracking.
+         */
         public BackTrackResult(DoubleMatrix grad, DoubleMatrix result) {
             this.grad = grad;
             this.val = result;
@@ -93,7 +114,6 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix>, Serializable
      *
      * @param btr The result of previous layers.
      * @param grad The uncompleted gradient.
-     * @return The index of the last weight.
      */
     public void wIsWeight(DoubleMatrix grad, BackTrackResult btr) {
         for (int col = 0, w = 0; col < weights.columns; col++) //indecies ordered (0,0), (1,0), ..., (n, 0), (1,0), (1,1), ..., (1,n), ...
@@ -154,6 +174,7 @@ public class Layer implements Function<DoubleMatrix, DoubleMatrix>, Serializable
      * @param vector The vector of all the weights and biases for the neural
      * network.
      * @param ld The architecture for this layer.
+     * @param af The activation function for this layer.
      * @param sub The sublayer of this layer.
      */
     public Layer(double[] vector, LayerArchitecture ld, ActivationFunction af, Layer sub) {

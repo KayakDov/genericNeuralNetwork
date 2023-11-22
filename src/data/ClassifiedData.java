@@ -51,6 +51,10 @@ public interface ClassifiedData {
      */
     public int size();
     
+    /**
+     * An array of all data.
+     * @return An array of all the data.
+     */
     public default Datum[] array(){
         return stream().toArray(Datum[]::new);
     }

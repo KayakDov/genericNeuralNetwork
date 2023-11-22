@@ -16,8 +16,18 @@ import javax.imageio.ImageIO;
  */
 public class MNISTMatrix {
 
+    /**
+     * The data in this matrix.
+     */
     public final int[] data;
-    public final int rows, cols;
+    /**
+     * The number of rows in this matrix.
+     */
+    public final int rows, 
+            /**
+             * The number of columns in this matrix.
+             */
+            cols;
 
     /**
      * How this data is classified, a number between 0 and 9.
@@ -89,6 +99,10 @@ public class MNISTMatrix {
         data[row * cols + col] = val;
     }
 
+    /**
+     * Saves a picture from the given file name.
+     * @param fileName The source of the picture.
+     */
     public void savePicture(String fileName) {
         try {
             BufferedImage image = new BufferedImage(cols, rows, BufferedImage.TYPE_BYTE_GRAY);

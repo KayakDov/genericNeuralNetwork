@@ -36,8 +36,17 @@ public class DiskSampleDataSet extends ArrayList<Datum> implements ClassifiedDat
      */
     public static class Disk {
 
+        /**
+         * The number of points in this disk.
+         */
         public final int numPoints;
+        /**
+         * The location of the center of this disk.
+         */
         public final DoubleMatrix center;
+        /**
+         * The radius of this disk.
+         */
         public final double radius;
 
         /**

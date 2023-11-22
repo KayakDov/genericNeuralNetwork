@@ -5,8 +5,19 @@ package neuralnetwork;
  * @author Dov Neimand
  */
 public class Indices {
-    
-    public final int layer, row, col, source;
+    /**
+     * The layer the weight or bias is in.
+     */
+    public final int layer, 
+            
+            /**
+             * The row in the matrix at the given layer.
+             */
+            row, 
+            /**
+             * The column in the matrix at the given layer.
+             */
+            col;
 
     /**
      * A constructor for a weight or bias.
@@ -15,11 +26,10 @@ public class Indices {
      * @param col The index of the column of the weight.  This can be set to 
      * -1 if a bias is meant to be constructed.
      */
-    public Indices(int matrix, int row, int col, int source) {
+    public Indices(int matrix, int row, int col) {
         this.layer = matrix;
         this.row = row;
         this.col = col;
-        this.source = source;
     }
     
     /**
@@ -27,11 +37,10 @@ public class Indices {
      * @param matrix The index of the layer of the weight.
      * @param row The index of the row of the weight.
      */
-    public Indices(int matrix, int row, int source) {
+    public Indices(int matrix, int row) {
         this.layer = matrix;
         this.row = row;
         this.col = -1;
-        this.source = source;
     }
     
     /**

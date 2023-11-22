@@ -14,6 +14,9 @@ public class LayerArchitecture implements Serializable{
      * the bias.
      */
     public final int rows, cols, startIndex;
+    /**
+     * The architecture for this layer.
+     */
     public final Architecture networkArchitecture;
 
     /**
@@ -24,6 +27,7 @@ public class LayerArchitecture implements Serializable{
      * networks weight vector
      * @param numWightsPerNode The number of weights each node has. This is the
      * number of columns int the layer's matrix.
+     * @param network The architecture for this layer.
      */
     public LayerArchitecture(int numNodes, int numWightsPerNode, int startIndex, Architecture network) {
         this.rows = numNodes;

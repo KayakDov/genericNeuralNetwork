@@ -13,14 +13,29 @@ import java.util.stream.Stream;
  */
 public class MNISTData implements Iterator<MNISTDatum>, ClassifiedData {
 
+    /**
+     * The names of the file path for the training image data.
+     */
     public static final String dataFilePath = "MNISTData\\train-images-idx3-ubyte",
+            /**
+             * The name of the file path for the training image labels.
+             */
             labelFilePath = "MNISTData\\train-labels-idx1-ubyte",
+            /**
+             * The name of the file path for the test data.
+             */
             dataTestFilePath = "MNISTData\\t10k-images-idx3-ubyte",
+            /**
+             * The name of the file path for the test data.
+             */
             labelTestFilePath = "MNISTData\\t10k-labels-idx1-ubyte";
 
     private DataInputStream labelReader, dataReader;
 
     private int rows, cols, size, labelSize;
+    /**
+     * The data.
+     */
     public Datum[] data;
 
     private final boolean bigSet;
@@ -33,6 +48,9 @@ public class MNISTData implements Iterator<MNISTDatum>, ClassifiedData {
         return new byte[]{dis.readByte(), dis.readByte()};
     }
 
+    /**
+     * Resets the file reader to start again at the beginning.
+     */
     public final void resetFileReader() {
         try {
             if (dataReader != null) close();
@@ -133,6 +151,11 @@ public class MNISTData implements Iterator<MNISTDatum>, ClassifiedData {
         return rows * cols;
     }
 
+    /**
+     * Runs some simple tests on the class.
+     * @param args Not used.
+     * @throws IOException 
+     */
     public static void main(String[] args) throws IOException {
 
         MNISTData test = new MNISTData(false);
@@ -143,6 +166,9 @@ public class MNISTData implements Iterator<MNISTDatum>, ClassifiedData {
         }
     }
 
+    /**
+     * Closes the various streams used by this class.
+     */
     public void close() {
         try {
             labelReader.close();

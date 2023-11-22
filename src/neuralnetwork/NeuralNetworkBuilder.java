@@ -21,8 +21,6 @@ public class NeuralNetworkBuilder implements DiffReal {
      *
      * @param data The data used to train the network.
      * @param architecture The number of nodes in each layer.
-     * @param af The activation function used by each node.
-     * @param A greater than 0 value used for the optimization
      */
     public NeuralNetworkBuilder(ClassifiedData data, Architecture architecture) {
         if (data.numTypes() != architecture.outputDim())

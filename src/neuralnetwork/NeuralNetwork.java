@@ -123,7 +123,6 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix>, Seri
     /**
      * How accurate is the neural networks prediction for the proffered datum.
      *
-     * @param nn The neural network
      * @param x A datum, presumably in the training set.
      * @return A measure of how accurate the nerual networks result is on x. A
      * high number means the network did a bad job at classifying the data, and
@@ -149,6 +148,8 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix>, Seri
     /**
      * Saves this neural network to a file.
      * @param fileName The name of the file.
+     * @throws java.io.FileNotFoundException
+     * @throws java.io.IOException
      */
     public void saveToFile(String fileName) 
             throws FileNotFoundException, IOException{
@@ -158,7 +159,10 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix>, Seri
 
     /**
      * Constructs a saves neural network from a file.
+     * @param fileName The name of the file.
      * @return A neural network that was saved to a file.
+     * @throws java.io.FileNotFoundException
+     * @throws java.lang.ClassNotFoundException
      */
     public static NeuralNetwork fromFile(String fileName) 
             throws FileNotFoundException, IOException, ClassNotFoundException{
@@ -167,7 +171,10 @@ public class NeuralNetwork implements Function<DoubleMatrix, DoubleMatrix>, Seri
     }
     
     
-    
+   /**
+    * Runs some basic tests on this class.
+    * @param args Not used.
+    */
     public static void main(String[] args) {
         DoubleMatrix id = new DoubleMatrix(2, 2, 1, 0, 0, 1);
         DoubleMatrix m = new DoubleMatrix(2, 2, 1, 2, 3, 4);//TODO: Check every data access!

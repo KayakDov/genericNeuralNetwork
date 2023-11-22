@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"data"},{"l":"Data"},{"l":"neuralnetwork"},{"l":"neuralnetwork.ActivationFunctions"},{"l":"optimization"},{"l":"test"}];updateSearchResults();
