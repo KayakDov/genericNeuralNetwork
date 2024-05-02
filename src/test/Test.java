@@ -1,7 +1,7 @@
 package test;
 
-import Data.DiskSampleDataSet;
 import data.ClassifiedData;
+import data.DiskSampleDataSet;
 import data.MNISTData;
 import neuralnetwork.Architecture;
 import neuralnetwork.NeuralNetwork;

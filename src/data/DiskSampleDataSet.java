@@ -1,11 +1,10 @@
-package Data;
+package data;
 
-import data.ClassifiedData;
-import data.Datum;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.jblas.DoubleMatrix;
@@ -73,7 +72,7 @@ public class DiskSampleDataSet extends ArrayList<Datum> implements ClassifiedDat
                 DoubleMatrix vec = DoubleMatrix.randn(center.length);
                 vec = vec.div(vec.norm2()).mul(radius * Math.random()).add(center);
                 return new Datum(vec.data, id, numDisks);
-            }).toList();
+            }).collect(Collectors.toList());
         }
         
         private int numDisks;
