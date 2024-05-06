@@ -31,15 +31,11 @@ public class Matrix {
 
     }
 
-    private static double[][] transpose(double[][] matrix) {
-        double[][] transp = new double[matrix[0].length][matrix.length];
-        for (int i = 0; i < transp.length; i++) {
-            int k = i;
-            Arrays.setAll(transp[i], j -> matrix[j][k]);
-        }
-        return transp;
-    }
-
+    /**
+     * This is a column major matrix.  Each inner array in the parameter is 
+     * a column of hte matrix created.
+     * @param matrix
+     */
     public Matrix(double[][] matrix) {
         this(
                 pointer(matrix[0].length * matrix.length * Sizeof.DOUBLE),
@@ -47,18 +43,15 @@ public class Matrix {
                 matrix.length
         );
 
-        for (int i = 0; i < width; i++) {
-
-            Pointer devicePointer = data.withByteOffset(i * height * Sizeof.DOUBLE);
-
+        for (int i = 0; i < width; i++)
             JCuda.cudaMemcpy(
-                    devicePointer,
+                    data.withByteOffset(i * height * Sizeof.DOUBLE),
                     Pointer.to(matrix[i]),
                     height * Sizeof.DOUBLE,
                     cudaMemcpyKind.cudaMemcpyHostToDevice
             );
 
-        }
+        
 
         cleaner.register(
                 new PhantomReference<>(this, referenceQueue),
@@ -164,16 +157,42 @@ public class Matrix {
             throw new IllegalArgumentException("Matrix dimensions are not compatible for addition");
         }
 
-        // Allocate memory for the result matrix on the GPU
         Pointer result = pointer(getSize());
-
-        // Perform element-wise addition
         JCublas.cublasDaxpy(getSize(), 1.0, data, 1, result, 1); // Add current matrix to result
         JCublas.cublasDaxpy(getSize(), 1.0, other.data, 1, result, 1); // Add other matrix to result
 
         return new Matrix(result, getHeight(), getWidth());
     }
 
+    /**
+     * Gets a pointer to a specific column.
+     * @param col The desired column.
+     * @return A pointer to the desired column.
+     */
+    private Pointer getColumn(int col){
+        return data.withByteOffset(col * height * Sizeof.DOUBLE);
+    }
+    
+    /**
+     * Inserts anther matrix into this matrix at the given index.
+     * @param other The matrix to be inserted
+     * @param row the row in this matrix where the first row of the other matrix
+     * is inserted.
+     * @param col The column in this matrix where the first row of the other matrix
+     * is inserted.
+     * 
+     */
+    public void insert(Matrix other, int row, int col){
+        for(int i = 0; col < other.width; col++, i++)
+            JCuda.cudaMemcpy(
+                    data.withByteOffset((row + col * height) * Sizeof.DOUBLE),
+                    other.getColumn(i),
+                    other.height * Sizeof.DOUBLE,
+                    cudaMemcpyKind.cudaMemcpyDeviceToDevice
+            );
+    }
+    
+    
     /**
      * Returns a string representation of the matrix.
      *
@@ -187,12 +206,12 @@ public class Matrix {
             sb.append("[");
             for (int col = 0; col < getWidth(); col++) {
                 sb.append(getElement(row, col));
-                if (col < getWidth()- 1) {
+                if (col < getWidth() - 1) {
                     sb.append(", ");
                 }
             }
             sb.append("]");
-            if (row < getHeight()- 1) {
+            if (row < getHeight() - 1) {
                 sb.append(",\n ");
             }
         }
@@ -211,7 +230,7 @@ public class Matrix {
         double[] hostData = new double[1];
         JCuda.cudaMemcpy(
                 Pointer.to(hostData),
-                data.withByteOffset((row + column*getHeight()) * Sizeof.DOUBLE),
+                data.withByteOffset((row + column * getHeight()) * Sizeof.DOUBLE),
                 Sizeof.DOUBLE,
                 cudaMemcpyKind.cudaMemcpyDeviceToHost
         );
@@ -227,11 +246,13 @@ public class Matrix {
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         return Cleaner.create(threadFactory);
     }
+    
+    
 
     public static void main(String[] args) {
 
         Matrix matrixA = new Matrix(new double[][]{{1, 2, 3}, {4, 5, 6}});
-        Matrix matrixB = new Matrix(new double[][]{{7, 8}, {9, 10}, {11, 12}});
+        Matrix matrixB = new Matrix(new double[][]{{7, 8}, {9, 10}});
 
         // Print the original matrices
         System.out.println("Matrix A:");
@@ -241,16 +262,14 @@ public class Matrix {
         System.out.println("Matrix B:");
         System.out.println(matrixB);
         System.out.println();
-//
-//        // Test matrix multiplication
-        Matrix product = matrixA.multiply(matrixB);
-        System.out.println("Matrix Multiplication Result:");
-        System.out.println(product);
+
+        matrixA.insert(matrixB, 1, 0);
+        
+        System.out.println("Matrix A:");
+        System.out.println(matrixA);
         System.out.println();
-        // Test matrix addition
-//        Matrix sum = matrixA.add(matrixB);
-//        System.out.println("Matrix Addition Result:");
-//        System.out.println(sum);
+        
+        
     }
 
 }
